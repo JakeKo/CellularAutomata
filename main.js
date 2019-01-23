@@ -1,5 +1,6 @@
-const CELL_SIZE = 10; // Side length in pixels
+const CELL_SIZE = 30; // Side length in pixels
 const CANVAS_RESOLUTION = 3;
+const NEIGHBORHOOD_RADIUS = 1;
 
 (function() {
     const canvas = document.getElementsByTagName("canvas")[0];
@@ -11,8 +12,15 @@ const CANVAS_RESOLUTION = 3;
     const rowLength = Math.floor(canvas.width / CELL_SIZE);
     const rowCount = Math.floor(canvas.height / CELL_SIZE);
 
-    for (let i = 0; i < rowCount; i++) {
-        renderRow(context, i, getRandomRow(rowLength));
+    // Create the first row
+    let row = getRandomRow(rowLength);
+    renderRow(context, 0, row);
+
+    // Evaluate each subsequent row
+    for (let i = 1; i < rowCount; i++) {
+        const nextRow = evaluateNextRow(row);
+        renderRow(context, i, nextRow);
+        row = nextRow;
     }
 })();
 
@@ -36,4 +44,32 @@ function renderRow(context, rowIndex, row) {
         context.fillStyle = cell === 0 ? "#000000" : "#FFFFFF";
         context.fillRect(x, y, CELL_SIZE, CELL_SIZE);
     });
+}
+
+function evaluateNextRow(row) {
+    const nextRow = [];
+
+    for (let i = 0; i < row.length; i++) {
+        const neighborhood = getNeighborhood(row, i);
+
+        // TODO: Implement rule behavior
+        const sum = neighborhood.reduce((base, value) => base + value);
+        nextRow.push(sum < neighborhood.length / 2 ? 0 : 1);
+    }
+
+    return nextRow;
+}
+
+function getNeighborhood(row, index) {
+    const neighborhood = [];
+
+    for (let i = index - NEIGHBORHOOD_RADIUS; i <= index + NEIGHBORHOOD_RADIUS; i++) {
+        neighborhood.push(row[mod(i, row.length)]);
+    }
+
+    return neighborhood;
+}
+
+function mod(value, modulo) {
+    return (value % modulo + modulo) % modulo;
 }
