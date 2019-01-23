@@ -1,6 +1,7 @@
-const CELL_SIZE = 30; // Side length in pixels
+const CELL_SIZE = 10; // Side length in pixels
 const CANVAS_RESOLUTION = 3;
 const NEIGHBORHOOD_RADIUS = 1;
+const RULE = [ 0, 0, 0, 1, 1, 1, 1, 0 ];
 
 (function() {
     const canvas = document.getElementsByTagName("canvas")[0];
@@ -46,20 +47,25 @@ function renderRow(context, rowIndex, row) {
     });
 }
 
+// Evaluates the next row of cells based on the provided rule and the previous row
 function evaluateNextRow(row) {
     const nextRow = [];
 
     for (let i = 0; i < row.length; i++) {
         const neighborhood = getNeighborhood(row, i);
-
-        // TODO: Implement rule behavior
-        const sum = neighborhood.reduce((base, value) => base + value);
-        nextRow.push(sum < neighborhood.length / 2 ? 0 : 1);
+        const sum = binarySum(neighborhood);
+        nextRow.push(RULE[sum] === 1 ? 0 : 1);
     }
 
     return nextRow;
 }
 
+function binarySum(array) {
+    const binaryString = array.join("");
+    return parseInt(binaryString, 2);
+}
+
+// Returns the neighborhood of a given radius around an index (wrapping-enabled)
 function getNeighborhood(row, index) {
     const neighborhood = [];
 
