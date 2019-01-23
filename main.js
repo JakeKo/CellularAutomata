@@ -1,7 +1,7 @@
 const CELL_SIZE = 10; // Side length in pixels
-const CANVAS_RESOLUTION = 3;
+const CANVAS_RESOLUTION = 2;
 const NEIGHBORHOOD_RADIUS = 1;
-const RULE = [ 0, 0, 0, 1, 1, 1, 1, 0 ];
+const RULE = decimalToBinaryArray(30);
 
 (function() {
     const canvas = document.getElementsByTagName("canvas")[0];
@@ -60,11 +60,6 @@ function evaluateNextRow(row) {
     return nextRow;
 }
 
-function binarySum(array) {
-    const binaryString = array.join("");
-    return parseInt(binaryString, 2);
-}
-
 // Returns the neighborhood of a given radius around an index (wrapping-enabled)
 function getNeighborhood(row, index) {
     const neighborhood = [];
@@ -74,6 +69,17 @@ function getNeighborhood(row, index) {
     }
 
     return neighborhood;
+}
+
+// Utility methods
+function binarySum(array) {
+    const binaryString = array.join("");
+    return parseInt(binaryString, 2);
+}
+
+function decimalToBinaryArray(decimal) {
+    const binaryStringArray = decimal.toString(2).padStart(8, "0").split("");
+    return binaryStringArray.map(digit => Number(digit));
 }
 
 function mod(value, modulo) {
