@@ -2,6 +2,7 @@ const CELL_SIZE = 10; // Side length in pixels
 const CANVAS_RESOLUTION = 2;
 const NEIGHBORHOOD_RADIUS = 1;
 const RULE = decimalToBinaryArray(30);
+const STEP_TICK = 5;
 
 (function() {
     const canvas = document.getElementsByTagName("canvas")[0];
@@ -14,15 +15,19 @@ const RULE = decimalToBinaryArray(30);
     const rowCount = Math.floor(canvas.height / CELL_SIZE);
 
     // Create the first row
+    let i = 0;
     let row = getRandomRow(rowLength);
-    renderRow(context, 0, row);
+
+    const step = () => {
+        renderRow(context, i++, row);
+        const nextRow = evaluateNextRow(row);
+        row = nextRow;
+        
+        if (i < rowCount) setTimeout(step, STEP_TICK)
+    };
 
     // Evaluate each subsequent row
-    for (let i = 1; i < rowCount; i++) {
-        const nextRow = evaluateNextRow(row);
-        renderRow(context, i, nextRow);
-        row = nextRow;
-    }
+    setTimeout(step, STEP_TICK);
 })();
 
 // Reuturns an array of the specified length with a random assortment of 0 and 1
