@@ -14,8 +14,19 @@ html, body {
     height: 100%;
 }
 
+#form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 form {
     height: var(--settings-height);
+    width: 1200px;
+}
+
+#field-rule {
+    width: 100%;
 }
 
 #canvas-container {

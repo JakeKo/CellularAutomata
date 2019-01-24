@@ -6,7 +6,15 @@
     </head>
     <body>
         <div id="app">
-            <form></form>
+            <div id="form-container">
+                <form>
+                    <div>One-Dimensional Cellular Automata</div>
+                    <div>
+                        <label id="label-rule" for="rule">Rule: 30</label><br>
+                        <label for="rule">0</label><input id="field-rule" type="range" name="rule" min="0"><label id="label-rule-max" for="rule">255</label>
+                    </div>
+                </form>
+            </div>
             <div id="canvas-container">
                 <canvas></canvas>
             </div>

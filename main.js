@@ -1,34 +1,60 @@
 const CELL_SIZE = 10; // Side length in pixels
-const CANVAS_RESOLUTION = 2;
-const NEIGHBORHOOD_RADIUS = 1;
-const RULE = decimalToBinaryArray(30);
-const STEP_TICK = 5;
+const NEIGHBORHOOD_RADIUS = 2;
+const RULE_LENGTH = Math.pow(2, 2 * NEIGHBORHOOD_RADIUS + 1);
+
+let canvas, context, rowLength, rowCount, renderTimeout = -1;
 
 (function() {
-    const canvas = document.getElementsByTagName("canvas")[0];
-    const context = canvas.getContext("2d");
+    const ruleField = document.getElementById("field-rule");
+    ruleField.addEventListener("input", onRuleUpdated);
 
-    canvas.width = canvas.clientWidth * CANVAS_RESOLUTION;
-    canvas.height = canvas.clientHeight * CANVAS_RESOLUTION;
+    const max = Math.pow(2, RULE_LENGTH), value = Math.round(Math.random() * max);
+    ruleField.max = max;
+    ruleField.value = value;
+    document.getElementById("label-rule-max").innerHTML = max;
+    document.getElementById("label-rule").innerHTML = `Rule: ${value}`;
+    
+    canvas = document.getElementsByTagName("canvas")[0];
+    context = canvas.getContext("2d");
 
-    const rowLength = Math.floor(canvas.width / CELL_SIZE);
-    const rowCount = Math.floor(canvas.height / CELL_SIZE);
+    const canvasResolution = 2;
+    canvas.width = canvas.clientWidth * canvasResolution;
+    canvas.height = canvas.clientHeight * canvasResolution;
+
+    rowLength = Math.floor(canvas.width / CELL_SIZE);
+    rowCount = Math.floor(canvas.height / CELL_SIZE);
+
+    startAutomata(value);
+})();
+
+function onRuleUpdated(event) {
+    const newRule = parseInt(event.target.value);
+    document.getElementById("label-rule").innerHTML = `Rule: ${newRule}`;
+
+    startAutomata(newRule);
+}
+
+function startAutomata(rule) {
+    // Clear the canvas
+    clearTimeout(renderTimeout);
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
     // Create the first row
     let i = 0;
     let row = getRandomRow(rowLength);
 
+    // Evaluate each subsequent row
     const step = () => {
         renderRow(context, i++, row);
-        const nextRow = evaluateNextRow(row);
+        const nextRow = evaluateNextRow(row, rule);
         row = nextRow;
         
-        if (i < rowCount) setTimeout(step, STEP_TICK)
+        if (i < rowCount) renderTimeout = setTimeout(step, 3);
     };
 
-    // Evaluate each subsequent row
-    setTimeout(step, STEP_TICK);
-})();
+    // Begin the loop
+    step();
+}
 
 // Reuturns an array of the specified length with a random assortment of 0 and 1
 function getRandomRow(length) {
@@ -53,13 +79,14 @@ function renderRow(context, rowIndex, row) {
 }
 
 // Evaluates the next row of cells based on the provided rule and the previous row
-function evaluateNextRow(row) {
+function evaluateNextRow(row, rule) {
+    const ruleMap = decimalToBinaryArray(rule);
     const nextRow = [];
 
     for (let i = 0; i < row.length; i++) {
         const neighborhood = getNeighborhood(row, i);
         const sum = binarySum(neighborhood);
-        nextRow.push(RULE[sum] === 1 ? 0 : 1);
+        nextRow.push(ruleMap[sum] === 1 ? 0 : 1);
     }
 
     return nextRow;
@@ -83,7 +110,7 @@ function binarySum(array) {
 }
 
 function decimalToBinaryArray(decimal) {
-    const binaryStringArray = decimal.toString(2).padStart(8, "0").split("");
+    const binaryStringArray = decimal.toString(2).padStart(RULE_LENGTH, "0").split("");
     return binaryStringArray.map(digit => Number(digit));
 }
 
